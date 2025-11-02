@@ -1,0 +1,101 @@
+import sqlite3
+
+def create_table():
+    conn = sqlite3.connect('employees.db')
+    cur = conn.cursor()
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS employee(
+        emp_id TEXT PRIMARY KEY NOT NULL,
+        name TEXT NOT NULL,
+        designation TEXT,
+        salary REAL
+    )
+    """)
+    conn.commit()
+    conn.close()
+
+def add_employee():
+    conn = sqlite3.connect('employees.db')
+    cur = conn.cursor()
+    emp_id = input("Enter Employee ID: ")
+    name = input("Enter Name: ")
+    designation = input("Enter Designation: ")
+    salary = float(input("Enter Salary: "))
+    try:
+        cur.execute("INSERT INTO employee(emp_id, name, designation, salary) VALUES (?, ?, ?, ?)",
+                    (emp_id, name, designation, salary))
+        conn.commit()
+        print("Employee added successfully.")
+    except sqlite3.IntegrityError:
+        print("Error: Employee ID already exists.")
+    conn.close()
+
+def view_employees():
+    conn = sqlite3.connect('employees.db')
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM employee")
+    rows = cur.fetchall()
+    if rows:
+        print("ID\tName\tDesignation\tSalary")
+        for row in rows:
+            print(f"{row[0]}\t{row[1]}\t{row[2]}\t{row[3]}")
+    else:
+        print("No employees found.")
+    conn.close()
+
+def update_employee():
+    conn = sqlite3.connect('employees.db')
+    cur = conn.cursor()
+    emp_id = input("Enter Employee ID to update: ")
+    cur.execute("SELECT * FROM employee WHERE emp_id=?", (emp_id,))
+    row = cur.fetchone()
+    if row:
+        name = input(f"Enter Name ({row[1]}): ") or row[1]
+        designation = input(f"Enter Designation ({row[2]}): ") or row[2]
+        salary_input = input(f"Enter Salary ({row[3]}): ")
+        salary = float(salary_input) if salary_input else row[3]
+        cur.execute("UPDATE employee SET name=?, designation=?, salary=? WHERE emp_id=?",
+                    (name, designation, salary, emp_id))
+        conn.commit()
+        print("Employee updated successfully.")
+    else:
+        print("Employee not found.")
+    conn.close()
+
+def delete_employee():
+    conn = sqlite3.connect('employees.db')
+    cur = conn.cursor()
+    emp_id = input("Enter Employee ID to delete: ")
+    cur.execute("SELECT * FROM employee WHERE emp_id=?", (emp_id,))
+    row = cur.fetchone()
+    if row:
+        cur.execute("DELETE FROM employee WHERE emp_id=?", (emp_id,))
+        conn.commit()
+        print("Employee deleted successfully.")
+    else:
+        print("Employee not found.")
+    conn.close()
+
+create_table()
+
+while True:
+    print("\n=== Employee Management Menu ===")
+    print("1. Add Employee")
+    print("2. View Employees")
+    print("3. Update Employee")
+    print("4. Delete Employee")
+    print("5. Exit")
+    choice = input("Enter your choice (1-5): ")
+    if choice == "1":
+        add_employee()
+    elif choice == "2":
+        view_employees()
+    elif choice == "3":
+        update_employee()
+    elif choice == "4":
+        delete_employee()
+    elif choice == "5":
+        print("Exiting program.")
+        break
+    else:
+        print("Invalid choice. Please enter 1-5.")
