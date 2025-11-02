@@ -1,0 +1,124 @@
+CREATE DATABASE OnlineBookstore;
+USE OnlineBookstore;
+
+create table authors(
+  author_id varchar(10)primary key,
+author_name varchar(20), 
+country varchar(25));
+ 
+ INSERT INTO authors (author_id, author_name, country)
+VALUES ('A01', 'JK Rowling', 'UK'),
+       ('A02', 'George Martin', 'USA');
+
++---------+-----------+-----------------+--------+------------------+
+| book_id | author_id | title           | price  | publication_year |
++---------+-----------+-----------------+--------+------------------+
+| B01     | A01       | Harry Potter    | 499.99 |             2007 |
+| B02     | A02       | Game of Thrones | 599.50 |             1996 |
++---------+-----------+-----------------+--------+------------------+
+
+
+create table books(
+  book_id varchar(10) not null primary key,
+  author_id VARCHAR(10),
+  title varchar(20),
+  foreign key(author_id) references authors(author_id),
+  price double(10,2),
+  publication_year YEAR);
+  
+  INSERT INTO books (book_id, author_id, title, price, publication_year)
+VALUES ('B01', 'A01', 'Harry Potter', 499.99, 2007),
+       ('B02', 'A02', 'Game of Thrones', 599.50, 1996);
+
++-----------+---------------+---------+
+| author_id | author_name   | country |
++-----------+---------------+---------+
+| A01       | JK Rowling    | UK      |
+| A02       | George Martin | USA     |
++-----------+---------------+---------+
+
+
+create table orders(
+  order_id varchar(10) primary key,
+  book_id varchar(10),
+  foreign key(book_id) references books(book_id), 
+  customer_name varchar(20), 
+  order_date date); 
+  
+  INSERT INTO orders (order_id, book_id, customer_name, order_date)
+VALUES ('O01', 'B01', 'Alice', '2025-10-30'),
+       ('O02', 'B02', 'Bob', '2025-10-31');
+       
+  
++----------+---------+---------------+------------+
+| order_id | book_id | customer_name | order_date |
++----------+---------+---------------+------------+
+| O01      | B01     | Alice         | 2025-10-30 |
+| O02      | B02     | Bob           | 2025-10-31 |
++----------+---------+---------------+------------+
+
+
+alter table books add genre varchar(15);
+ select*from books;
+
++---------+-----------+-----------------+--------+------------------+-------+
+| book_id | author_id | title           | price  | publication_year | genre |
++---------+-----------+-----------------+--------+------------------+-------+
+| B01     | A01       | Harry Potter    | 499.99 |             2007 | NULL  |
+| B02     | A02       | Game of Thrones | 599.50 |             1996 | NULL  |
++---------+-----------+-----------------+--------+------------------+-------+
+
+  alter table orders add  quantity int(10);
+  select*from orders;
+
+
++----------+---------+---------------+------------+----------+
+| order_id | book_id | customer_name | order_date | quantity |
++----------+---------+---------------+------------+----------+
+| O01      | B01     | Alice         | 2025-10-30 |     NULL |
+| O02      | B02     | Bob           | 2025-10-31 |     NULL |
++----------+---------+---------------+------------+----------+
+
+
+
+select 
+    b.book_id,
+    b.title,
+    b.price,
+    b.publication_year,
+    b.genre,
+    a.author_id,
+    a.author_name,
+    a.country
+from books b
+inner join authors a
+on b.author_id = a.author_id;
+
++---------+-----------------+--------+------------------+-------+-----------+---------------+---------+
+| book_id | title           | price  | publication_year | genre | author_id | author_name   | country |
++---------+-----------------+--------+------------------+-------+-----------+---------------+---------+
+| B01     | Harry Potter    | 499.99 |             2007 | NULL  | A01       | JK Rowling    | UK      |
+| B02     | Game of Thrones | 599.50 |             1996 | NULL  | A02       | George Martin | USA     |
++---------+-----------------+--------+------------------+-------+-----------+---------------+---------+
+
+select 
+    o.order_id,
+    o.customer_name,
+    o.order_date,
+    o.quantity,
+    b.book_id,
+    b.title as book_title
+from orders o
+inner join books b
+on o.book_id = b.book_id;
+
+
+
++----------+---------------+------------+----------+---------+-----------------+
+| order_id | customer_name | order_date | quantity | book_id | book_title      |
++----------+---------------+------------+----------+---------+-----------------+
+| O01      | Alice         | 2025-10-30 |     NULL | B01     | Harry Potter    |
+| O02      | Bob           | 2025-10-31 |     NULL | B02     | Game of Thrones |
++----------+---------------+------------+----------+---------+-----------------+
+
+
